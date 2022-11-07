@@ -9,6 +9,8 @@ package kernel
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/tidwall/gjson"
 	"github.com/yrzs/k3cloud/object"
 	"io/ioutil"
 	"net/http"
@@ -56,50 +58,38 @@ func (b *Browser) GetCookie() []*http.Cookie {
 	return b.cookies
 }
 
-//发送Get请求
-func (b *Browser) Get(requestUrl string) ([]byte, int) {
-	request, _ := http.NewRequest("GET", requestUrl, nil)
-	b.setRequestCookie(request)
-	response, _ := b.client.Do(request)
-	defer response.Body.Close()
-
-	data, _ := ioutil.ReadAll(response.Body)
-	return data, response.StatusCode
-}
-
-//发送Post请求
-func (b *Browser) Post(requestUrl string, params map[string]string) []byte {
-	postData := b.encodeParams(params)
-	request, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData))
-	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	b.setRequestCookie(request)
-
-	response, _ := b.client.Do(request)
-	defer response.Body.Close()
-
-	//保存响应的 cookie
-	respCks := response.Cookies()
-	b.cookies = append(b.cookies, respCks...)
-
-	data, _ := ioutil.ReadAll(response.Body)
-	return data
-}
-
 //发送PostJson请求
-func (b *Browser) PostJson(requestUrl string, params *object.HashMap) []byte {
+func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.HashMap, error) {
 	postData, _ := object.JsonEncode(params)
 	request, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData))
 	request.Header.Set("Content-Type", "application/json")
 	b.setRequestCookie(request)
-
-	response, _ := b.client.Do(request)
+	response, err := b.client.Do(request)
+	if err != nil {
+		return nil, errors.New("http post json fail")
+	}
 	defer response.Body.Close()
-
 	//保存响应的 cookie
 	respCks := response.Cookies()
 	b.cookies = append(b.cookies, respCks...)
-	data, _ := ioutil.ReadAll(response.Body)
-	return data
+	data, e := ioutil.ReadAll(response.Body)
+	if e != nil {
+		return nil, errors.New("http read io result fail")
+	}
+	m, ok := gjson.Parse(string(data)).Value().(map[string]interface{})
+	if ok {
+		o := object.HashMap(m)
+		return &o, nil
+	} else {
+		mm, okk := gjson.Parse(string(data)).Value().([]interface{})
+		if okk {
+			var oo = object.HashMap{
+				"data": mm,
+			}
+			return &oo, nil
+		}
+		return nil, nil
+	}
 }
 
 //为请求设置 cookie
