@@ -8,7 +8,7 @@ import (
 
 type HashMap map[string]interface{}
 
-// ------------------------------- Merge --------------------------------------------
+// MergeHashMap. 合并map
 func MergeHashMap(toMap *HashMap, subMaps ...*HashMap) *HashMap {
 	if toMap == nil {
 		toMap = &HashMap{}
@@ -19,13 +19,11 @@ func MergeHashMap(toMap *HashMap, subMaps ...*HashMap) *HashMap {
 			// 迭代每个HashMap
 			for k, v := range *subMap {
 				toV := (*toMap)[k]
-
 				// if the key is not exist in toMap
 				if toV == nil {
 					(*toMap)[k] = v
 					continue
 				}
-
 				// if the toMap by the key is ""
 				switch toV.(type) {
 				case string:
@@ -34,14 +32,13 @@ func MergeHashMap(toMap *HashMap, subMaps ...*HashMap) *HashMap {
 					}
 					break
 				}
-
 			}
 		}
 	}
 	return toMap
 }
 
-// ------------------------------- Replace --------------------------------------------
+// ReplaceHashMapRecursive. replace
 func ReplaceHashMapRecursive(toMap *HashMap, subMaps ...*HashMap) *HashMap {
 	if toMap == nil {
 		toMap = &HashMap{}
@@ -58,78 +55,61 @@ func ReplaceHashMapRecursive(toMap *HashMap, subMaps ...*HashMap) *HashMap {
 	return toMap
 }
 
-// ------------------------------- Conversion ---------------------------------------
-
+// HashMapToStringMap.
 func HashMapToStringMap(obj *HashMap) (newMap *StringMap, err error) {
-
 	newMap = &StringMap{}
-
 	if obj == nil {
 		return newMap, err
 	}
-
 	for k, v := range *obj {
 		(*newMap)[k] = fmt.Sprintf("%v", v)
 	}
-
 	return newMap, err
-
 }
 
+// StructToHashMapWithXML.
 func StructToHashMapWithXML(obj interface{}) (newMap *HashMap, err error) {
-
 	newMap = &HashMap{}
-
 	if obj == nil {
 		return newMap, err
 	}
-
 	e := reflect.ValueOf(obj).Elem()
-
 	for i := 0; i < e.NumField(); i++ {
 		field := e.Field(i).Interface()
-
 		key := e.Type().Field(i).Tag.Get("xml")
-
 		(*newMap)[key] = field
-
 	}
-
 	return newMap, err
-
 }
-func HashMapToStructure(mapObj *HashMap, obj interface{}) (err error) {
 
+// HashMapToStructure.
+func HashMapToStructure(mapObj *HashMap, obj interface{}) (err error) {
 	strObj, err := JsonEncode(mapObj)
 	if err != nil {
 		return err
 	}
 	err = JsonDecode([]byte(strObj), obj)
-
 	return err
 }
 
+// StructToHashMap.
 func StructToHashMap(obj interface{}) (newMap *HashMap, err error) {
 	data, err := json.Marshal(obj) // Convert to a json string
-
 	if err != nil {
 		return
 	}
-
 	newMap = &HashMap{}
 	err = json.Unmarshal(data, newMap) // Convert to a map
 	return
 }
 
-// ------------------------------- Search --------------------------------------------
+// InHash. search
 func InHash(val interface{}, hash *HashMap) (exists bool, key string) {
 	exists = false
 	key = ""
-
 	switch reflect.TypeOf(hash).Kind() {
 	case reflect.Map:
 		//s := reflect.ValueOf(hash)
-
 		for k, v := range *hash {
 			if reflect.DeepEqual(val, v) == true {
 				key = k
@@ -137,24 +117,22 @@ func InHash(val interface{}, hash *HashMap) (exists bool, key string) {
 			}
 		}
 	}
-
 	return
 }
 
+// GetHashMapKV.
 func GetHashMapKV(maps StringMap) (keys []string, values []interface{}) {
 	mapLen := len(maps)
 	keys = make([]string, 0, mapLen)
 	values = make([]interface{}, 0, mapLen)
-
 	for k, v := range maps {
 		keys = append(keys, k)
 		values = append(values, v)
 	}
-
 	return keys, values
 }
 
-// ------------------------------- Filter --------------------------------------------
+// FilterEmptyHashMap. filter
 func FilterEmptyHashMap(mapData *HashMap) (filteredMap *HashMap) {
 	filteredMap = &HashMap{}
 	for k, v := range *mapData {
@@ -180,7 +158,6 @@ func FilterEmptyHashMap(mapData *HashMap) (filteredMap *HashMap) {
 			//		}
 			//	}
 			//	break
-
 			case string:
 				if v.(string) == "" {
 					delete(*filteredMap, k)

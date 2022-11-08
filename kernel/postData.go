@@ -6,11 +6,10 @@ import (
 )
 
 func CreateLoginPostData(parameters ...interface{}) *object.HashMap {
-	var rid = make(map[string]interface{})
 	var data = &object.HashMap{
 		"format":     1,
 		"useragent":  "ApiClient",
-		"rid":        rid,
+		"rid":        &object.HashMap{},
 		"parameters": parameters,
 		"timestamp":  time.Now().Format("2006-01-02"),
 		"v":          "1.0",

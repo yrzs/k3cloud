@@ -10,6 +10,7 @@ package kernel
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/yrzs/k3cloud/object"
 	"io/ioutil"
@@ -60,6 +61,7 @@ func (b *Browser) GetCookie() []*http.Cookie {
 
 //发送PostJson请求
 func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.HashMap, error) {
+	fmt.Println(params)
 	postData, _ := object.JsonEncode(params)
 	request, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData))
 	request.Header.Set("Content-Type", "application/json")
