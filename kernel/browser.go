@@ -8,9 +8,7 @@ package kernel
 */
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/yrzs/k3cloud/object"
 	"io/ioutil"
@@ -19,12 +17,13 @@ import (
 	"strings"
 )
 
+// Browser.
 type Browser struct {
 	cookies []*http.Cookie
 	client  *http.Client
 }
 
-//初始化
+// NewBrowser. 初始化
 func NewBrowser() *Browser {
 	hc := &Browser{}
 	hc.client = &http.Client{}
@@ -40,7 +39,7 @@ func NewBrowser() *Browser {
 	return hc
 }
 
-//设置代理地址
+// SetProxyUrl. 设置代理地址
 func (b *Browser) SetProxyUrl(proxyUrl string) {
 	proxy := func(_ *http.Request) (*url.URL, error) {
 		return url.Parse(proxyUrl)
@@ -49,19 +48,26 @@ func (b *Browser) SetProxyUrl(proxyUrl string) {
 	b.client.Transport = transport
 }
 
-//设置请求cookie
+// AddCookie. 设置请求cookie
 func (b *Browser) AddCookie(cookies []*http.Cookie) {
 	b.cookies = append(b.cookies, cookies...)
 }
 
-//获取当前所有的cookie
+// GetCookie. 获取当前所有的cookie
 func (b *Browser) GetCookie() []*http.Cookie {
 	return b.cookies
 }
 
-//发送PostJson请求
+
+// setRequestCookie. 为请求设置cookie
+func (b *Browser) setRequestCookie(request *http.Request) {
+	for _, v := range b.cookies {
+		request.AddCookie(v)
+	}
+}
+
+// PostJson. 发送Post请求Json格式数据
 func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.HashMap, error) {
-	fmt.Println(params)
 	postData, _ := object.JsonEncode(params)
 	request, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData))
 	request.Header.Set("Content-Type", "application/json")
@@ -75,6 +81,7 @@ func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.H
 	respCks := response.Cookies()
 	b.cookies = append(b.cookies, respCks...)
 	data, e := ioutil.ReadAll(response.Body)
+	//fmt.Println(string(data))
 	if e != nil {
 		return nil, errors.New("http read io result fail")
 	}
@@ -94,24 +101,3 @@ func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.H
 	}
 }
 
-//为请求设置 cookie
-func (b *Browser) setRequestCookie(request *http.Request) {
-	for _, v := range b.cookies {
-		request.AddCookie(v)
-	}
-}
-
-//参数 encode
-func (b *Browser) encodeParams(params map[string]string) string {
-	paramsData := url.Values{}
-	for k, v := range params {
-		paramsData.Set(k, v)
-	}
-	return paramsData.Encode()
-}
-
-//参数 json
-func (b *Browser) jsonParams(params map[string]interface{}) string {
-	j, _ := json.Marshal(params)
-	return string(j)
-}

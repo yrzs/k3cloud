@@ -1,6 +1,6 @@
 package response
 
-type LoginResponseStruct struct {
+type LoginResponse struct {
 	Message           string      `json:"Message"`
 	MessageCode       string      `json:"MessageCode"`
 	LoginResultType   int         `json:"LoginResultType"`

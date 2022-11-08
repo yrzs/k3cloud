@@ -1,11 +1,11 @@
 package response
 
-type K3ResponseStruct struct {
+type K3Response struct {
 	Result Result `json:"Result"`
 }
 
 type Result struct {
-	ResponseStatus K3ResponseStatus `json:"ResponseStatus"`
+	Status         K3Status         `json:"ResponseStatus"`
 	ID             int              `json:"Id"`
 	Number         string           `json:"Number"`
 	NeedReturnData []NeedReturnData `json:"NeedReturnData"`
@@ -15,7 +15,7 @@ type NeedReturnData struct {
 	FVOUCHERID      string `json:"FVOUCHERID"`
 }
 
-type K3ResponseStatus struct {
+type K3Status struct {
 	IsSuccess       bool              `json:"IsSuccess"`
 	Errors          []interface{}     `json:"Errors"`
 	SuccessEntitys  []SuccessEntities `json:"SuccessEntitys"`

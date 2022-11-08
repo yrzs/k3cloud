@@ -39,7 +39,7 @@ func initLogin(b *kernel.Browser, c *K3Config) error {
 		"v":          "1.0",
 	}
 	res, _ := b.PostJson(c.Host+kernel.LoginApi, data)
-	var k3Response = &response.LoginResponseStruct{}
+	var k3Response = &response.LoginResponse{}
 	e := object.HashMapToStructure(res, k3Response)
 	if e != nil {
 		return errors.New("k3 cloud login fail")
