@@ -8,6 +8,7 @@ package kernel
 */
 
 import (
+	"context"
 	"errors"
 	"github.com/tidwall/gjson"
 	"github.com/yrzs/k3cloud/object"
@@ -58,7 +59,6 @@ func (b *Browser) GetCookie() []*http.Cookie {
 	return b.cookies
 }
 
-
 // setRequestCookie. 为请求设置cookie
 func (b *Browser) setRequestCookie(request *http.Request) {
 	for _, v := range b.cookies {
@@ -67,9 +67,11 @@ func (b *Browser) setRequestCookie(request *http.Request) {
 }
 
 // PostJson. 发送Post请求Json格式数据
-func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.HashMap, error) {
+func (b *Browser) PostJson(ctx context.Context, requestUrl string, params *object.HashMap) (*object.HashMap, error) {
 	postData, _ := object.JsonEncode(params)
 	request, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData))
+	// 携带ctx
+	request = request.WithContext(ctx)
 	request.Header.Set("Content-Type", "application/json")
 	b.setRequestCookie(request)
 	response, err := b.client.Do(request)
@@ -100,4 +102,3 @@ func (b *Browser) PostJson(requestUrl string, params *object.HashMap) (*object.H
 		return nil, nil
 	}
 }
-

@@ -31,7 +31,8 @@ func main() {
 		"FormId":    "BD_MATERIAL",
 		"FieldKeys": "FNUMBER,Fname",
 	}
-	res, _ := k3cloud.ExecuteBillQuery(d)
+    ctx := context.Background()
+	res, _ := k3cloud.ExecuteBillQuery(ctx, d)
 	var resp = &response.BillQueryResponse{}
 	if err := object.HashMapToStructure(res, resp); err == nil {
 		fmt.Println(resp.Data)
