@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // Browser.
@@ -24,10 +25,30 @@ type Browser struct {
 	client  *http.Client
 }
 
-// NewBrowser. 初始化
-func NewBrowser() *Browser {
+type httpTransport struct {
+	*http.Transport
+}
+
+func (t *httpTransport) SetProxyUrl(proxyUrl string) {
+	proxy := func(_ *http.Request) (*url.URL, error) {
+		return url.Parse(proxyUrl)
+	}
+	t.Transport.Proxy = proxy
+}
+
+// NewBrowserWithTransport.
+func NewBrowserWithTransport() *Browser {
 	hc := &Browser{}
-	hc.client = &http.Client{}
+	hc.client = &http.Client{
+		Transport: &httpTransport{
+			&http.Transport{
+				MaxIdleConns:        100,              // 最大空闲连接数
+				MaxIdleConnsPerHost: 10,               // 每个目标主机最大空闲连接数
+				IdleConnTimeout:     90 * time.Second, // 空闲连接超时时间
+				DisableKeepAlives:   true,             // 关闭 keep-alive
+			},
+		},
+	}
 	//为所有重定向的请求增加cookie
 	hc.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		if len(via) > 0 {

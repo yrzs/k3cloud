@@ -12,6 +12,7 @@ import (
 // K3Cloud. application
 type K3Cloud struct {
 	Config *K3Config
+	Client *kernel.Browser
 }
 
 // K3Config. 金蝶云星空账号地址
@@ -53,24 +54,16 @@ func initLogin(b *kernel.Browser, c *K3Config) error {
 
 // NewK3Cloud. new application
 func NewK3Cloud(c *K3Config) (*K3Cloud, error) {
-	browser := kernel.NewBrowser()
+	browser := kernel.NewBrowserWithTransport()
 	err := initLogin(browser, c)
 	if err != nil {
 		return nil, err
 	}
 	app := &K3Cloud{
 		Config: c,
+		Client: browser,
 	}
 	return app, nil
-}
-
-func (k *K3Cloud) newBrowser() *kernel.Browser {
-	browser := kernel.NewBrowser()
-	err := initLogin(browser, k.Config)
-	if err != nil {
-		return nil
-	}
-	return browser
 }
 
 //Submit.  提交
@@ -82,7 +75,7 @@ func (k *K3Cloud) Submit(ctx context.Context, formId string, data *object.HashMa
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Save.  保存
@@ -94,7 +87,7 @@ func (k *K3Cloud) Save(ctx context.Context, formId string, data *object.HashMap)
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //BatchSave.  批量保存
@@ -106,7 +99,7 @@ func (k *K3Cloud) BatchSave(ctx context.Context, formId string, data *object.Has
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Audit.  审核
@@ -118,7 +111,7 @@ func (k *K3Cloud) Audit(ctx context.Context, formId string, data *object.HashMap
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //UnAudit.  反审核
@@ -130,7 +123,7 @@ func (k *K3Cloud) UnAudit(ctx context.Context, formId string, data *object.HashM
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //View.  详情
@@ -142,7 +135,7 @@ func (k *K3Cloud) View(ctx context.Context, formId string, data *object.HashMap)
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 // ExecuteBillQuery. 单据查询
@@ -151,7 +144,7 @@ func (k *K3Cloud) ExecuteBillQuery(ctx context.Context, data *object.HashMap) (*
 	var postData = &object.HashMap{
 		"data": data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Operation. 操作
@@ -165,7 +158,7 @@ func (k *K3Cloud) Operation(ctx context.Context, formId, opNumber string, data *
 		"opNumber": opNumber,
 		"data":     data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Push.  下推
@@ -177,7 +170,7 @@ func (k *K3Cloud) Push(ctx context.Context, formId string, data *object.HashMap)
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Draft. 暂存
@@ -189,7 +182,7 @@ func (k *K3Cloud) Draft(ctx context.Context, formId string, data *object.HashMap
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Delete. 删除
@@ -201,7 +194,7 @@ func (k *K3Cloud) Delete(ctx context.Context, formId string, data *object.HashMa
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Allocate. 分配
@@ -213,7 +206,7 @@ func (k *K3Cloud) Allocate(ctx context.Context, formId string, data *object.Hash
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //FlexSave. 弹性域保存
@@ -225,7 +218,7 @@ func (k *K3Cloud) FlexSave(ctx context.Context, formId string, data *object.Hash
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //SendMsg. 发送消息
@@ -235,7 +228,7 @@ func (k *K3Cloud) SendMsg(ctx context.Context, data *object.HashMap) (*object.Ha
 	var postData = &object.HashMap{
 		"data": data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //Disassembly. 拆单
@@ -247,7 +240,7 @@ func (k *K3Cloud) Disassembly(ctx context.Context, formId string, data *object.H
 		"formid": formId,
 		"data":   data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //WorkflowAudit. 工作流审批
@@ -257,7 +250,7 @@ func (k *K3Cloud) WorkflowAudit(ctx context.Context, data *object.HashMap) (*obj
 	var postData = &object.HashMap{
 		"data": data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //QueryGroupInfo. 查询分组信息
@@ -267,7 +260,7 @@ func (k *K3Cloud) QueryGroupInfo(ctx context.Context, data *object.HashMap) (*ob
 	var postData = &object.HashMap{
 		"data": data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
 
 //GroupDelete. 分组删除
@@ -277,5 +270,5 @@ func (k *K3Cloud) GroupDelete(ctx context.Context, data *object.HashMap) (*objec
 	var postData = &object.HashMap{
 		"data": data,
 	}
-	return k.newBrowser().PostJson(ctx, url, postData)
+	return k.Client.PostJson(ctx, url, postData)
 }
