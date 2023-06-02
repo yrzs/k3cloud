@@ -102,7 +102,7 @@ func (b *Browser) PostJson(ctx context.Context, requestUrl string, params *objec
 	defer response.Body.Close()
 	//保存响应的 cookie
 	respCks := response.Cookies()
-	b.cookies = append(b.cookies, respCks...)
+	b.cookies = respCks
 	data, e := ioutil.ReadAll(response.Body)
 	//fmt.Println(string(data))
 	if e != nil {
