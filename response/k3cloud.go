@@ -16,8 +16,13 @@ type NeedReturnData struct {
 }
 
 type K3Status struct {
-	IsSuccess       bool              `json:"IsSuccess"`
-	Errors          []interface{}     `json:"Errors"`
+	ErrorCode int  `json:"ErrorCode"`
+	IsSuccess bool `json:"IsSuccess"`
+	Errors    []struct {
+		FieldName interface{}    `json:"FieldName"`
+		Message   string `json:"Message"`
+		DIndex    int    `json:"DIndex"`
+	} `json:"Errors"`
 	SuccessEntitys  []SuccessEntities `json:"SuccessEntitys"`
 	SuccessMessages []interface{}     `json:"SuccessMessages"`
 	MsgCode         int               `json:"MsgCode"`
