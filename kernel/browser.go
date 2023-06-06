@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/yrzs/k3cloud/object"
 	resp "github.com/yrzs/k3cloud/response"
@@ -154,13 +155,16 @@ func (b *Browser) PostJson(ctx context.Context, c *K3Config, requestUrl string, 
 	if !ok {
 		var k3Response [][]*resp.K3Response
 		if e = json.Unmarshal(data, &k3Response); e == nil {
-			responseStatus := k3Response[0][0].Result.Status
-			if responseStatus.ErrorCode == http.StatusInternalServerError && responseStatus.Errors[0].Message == "会话信息已丢失，请重新登录" {
-				log.Println("没登录!")
-				if e = b.InitLogin(c); e == nil {
-					log.Println("登录成功!")
-					log.Println("重放请求!")
-					return b.PostJson(ctx, c, requestUrl, params)
+			fmt.Println("id", k3Response)
+			if len(k3Response) > 0  {
+				responseStatus := k3Response[0][0].Result.Status
+				if responseStatus.ErrorCode == http.StatusInternalServerError && responseStatus.Errors[0].Message == "会话信息已丢失，请重新登录" {
+					log.Println("没登录!")
+					if e = b.InitLogin(c); e == nil {
+						log.Println("登录成功!")
+						log.Println("重放请求!")
+						return b.PostJson(ctx, c, requestUrl, params)
+					}
 				}
 			}
 		}
